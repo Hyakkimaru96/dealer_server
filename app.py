@@ -1,6 +1,7 @@
 # Import necessary libraries
 from flask import Flask, request, jsonify
 import mysql.connector
+import os
 from datetime import date
 from dotenv import load_dotenv
 load_dotenv()
