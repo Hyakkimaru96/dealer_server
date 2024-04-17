@@ -67,7 +67,7 @@ def dealer_signup():
             # Insert the new dealer into the dealers table
             cursor.execute(
                 "INSERT INTO dealers (username, password, email, phone_number) "
-                "VALUES (%s, %s, %s, %s, %s, %s)",
+                "VALUES (%s, %s, %s, %s)",
                 (username, password, email, phone_number)
             )
             connection.commit()
@@ -81,21 +81,20 @@ def dealer_signup():
 def get_scheduled_pickup_orders():
     try:
         # Establish a connection to the junkee_db database
-        connection = mysql.connector.connect(**mysql_config, database='junkee_db')
+        connection = mysql.connector.connect(**mysql_config, database='junkee')
         cursor = connection.cursor(dictionary=True)
 
-        # Fetch all orders from the scheduled_pickup table
-        cursor.execute("SELECT * FROM schedule_pickup")
+        # Fetch all orders from the schedule_pickup table
+        cursor.execute("SELECT pickup_id, user_id, item_counts, address, date, time, otp FROM schedule_pickup")
         scheduled_pickup_orders = cursor.fetchall()
-        print(scheduled_pickup_orders)
+
         # Close cursor and connection
         cursor.close()
         connection.close()
 
-        # Convert date and time fields to string representations
+        # Convert date field to string representation
         for order in scheduled_pickup_orders:
-            order['date'] = str(order['date'])
-            order['time'] = str(order['time'])
+            order['date'] = order['date'].strftime('%Y-%m-%d')  # Convert date object to string
 
         return jsonify({'scheduled_pickup_orders': scheduled_pickup_orders}), 200
 
@@ -103,11 +102,6 @@ def get_scheduled_pickup_orders():
         print(e)
         return jsonify({'error': str(e)}), 500
 
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-    
 @app.route('/accept_order', methods=['POST'])
 def accept_order():
     try:
@@ -133,7 +127,7 @@ def accept_order():
         accept_connection.close()
 
         # Establish a connection to the MySQL server for deleting from the scheduled_pickup table
-        delete_connection = mysql.connector.connect(**mysql_config, database='junkee_db')
+        delete_connection = mysql.connector.connect(**mysql_config, database='junkee')
         delete_cursor = delete_connection.cursor()
 
         # Delete the order from the scheduled_pickup table
