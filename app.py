@@ -2,15 +2,17 @@
 from flask import Flask, request, jsonify
 import mysql.connector
 from datetime import date
-
+from dotenv import load_dotenv
+load_dotenv()
 # Create a Flask app
 app = Flask(__name__)
 
 # MySQL Configuration
 mysql_config = {
-    'host': 'database-1.ctaogucsw1lb.ap-south-1.rds.amazonaws.com',
-    'user': 'admin',
-    'passwd': 'junkee!2024',
+    'host': os.environ.get('MYSQL_HOST'),
+    'port': int(os.environ.get('MYSQL_PORT')),
+    'user': os.environ.get('MYSQL_USER'),
+    'password': os.environ.get('MYSQL_PASSWORD'),
 }
 
 # Route to authenticate a dealer
